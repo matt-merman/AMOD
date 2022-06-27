@@ -1,6 +1,6 @@
 from itertools import product
-from helpers import *
-import constants as const 
+from guroby.helpers import *
+import guroby.constants as const 
 import gurobipy as gp
 from gurobipy import GRB
 
@@ -21,9 +21,14 @@ class Guroby:
         self.shipping_cost = {(c,f): const.COST_PER_MILE*compute_distance(self.customers[c], self.facilities[f]) for c, f in self.cartesian_prod}
 
     # MIP  model formulation
-    def calculate_mip(self):
+    def calculate_mip(self, relax):
 
-        m = gp.Model('facility_location')
+        #to hide output
+        env = gp.Env(empty=True)
+        env.setParam("OutputFlag",0)
+        env.start()
+
+        m = gp.Model('facility_location', env=env)
 
         select = m.addVars(self.num_facilities, vtype=GRB.BINARY, name='Select')
         assign = m.addVars(self.cartesian_prod, ub=1, vtype=GRB.CONTINUOUS, name='Assign')
@@ -37,7 +42,7 @@ class Guroby:
         #m.Params.Method = 0
 
         # https://www.gurobi.com/documentation/9.5/refman/py_model_relax.html
-        #m = m.relax()
+        if relax: m = m.relax()
 
         m.optimize()
 
@@ -52,6 +57,7 @@ class Guroby:
         #for customer, facility in assign.keys():
         #   if (abs(assign[customer, facility].x) > 1e-6):
                 #print(f"\n Supermarket {customer + 1} receives {round(100*assign[customer, facility].x, 2)} % of its demand  from Warehouse {facility + 1} .")
+        return m.PoolObjVal
 
 g = Guroby(num_customers=const.CUSTOMERS, num_facilities=const.FACILITIES)
-g.calculate_mip()
+g.calculate_mip(False)

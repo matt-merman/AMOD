@@ -84,11 +84,12 @@ class Dualoc:
             v[s] = min(z_max)
             w = self.calculate_w(v)
 
-        h = len(v)
-        for i in range(h):
-            continue
+        #h = len(v)
+        #for i in range(h):
+         #   continue
             #print(f"| {v[i]} |")
-        print(f"\nz = {sum(v)}")
+        #print(f"z = {sum(v)}")
+        return sum(v)
 
     def show(self):
         x_customers = []
