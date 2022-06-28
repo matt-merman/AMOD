@@ -21,7 +21,7 @@ class Dualoc:
 
     def calculate_z(self):
         values = []
-        for i in range(0, self.num_customers) : values.append(0)
+        for _ in range(0, self.num_customers) : values.append(0)
 
         current_value = 1000
         current_customer = 0
@@ -68,7 +68,7 @@ class Dualoc:
     
     def calculate_z_s(self, w, v):   
         z_max = []
-        for i in range(0, self.num_facilities) : z_max.append(0)
+        for _ in range(0, self.num_facilities) : z_max.append(0)
 
         for s in range(0, self.num_customers):
 

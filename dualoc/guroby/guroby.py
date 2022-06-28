@@ -4,7 +4,7 @@ import guroby.constants as const
 import gurobipy as gp
 from gurobipy import GRB
 
-# tested with Gurobi v9.1.0 and Python 3.7.0
+#tested with Gurobi v9.1.0 and Python 3.7.0
 
 class Guroby:
     def __init__(self, num_customers, num_facilities):
@@ -20,7 +20,6 @@ class Guroby:
         # Compute shipping costs
         self.shipping_cost = {(c,f): const.COST_PER_MILE*compute_distance(self.customers[c], self.facilities[f]) for c, f in self.cartesian_prod}
 
-    # MIP  model formulation
     def calculate_mip(self, relax):
 
         #to hide output
@@ -58,6 +57,3 @@ class Guroby:
         #   if (abs(assign[customer, facility].x) > 1e-6):
                 #print(f"\n Supermarket {customer + 1} receives {round(100*assign[customer, facility].x, 2)} % of its demand  from Warehouse {facility + 1} .")
         return m.PoolObjVal
-
-g = Guroby(num_customers=const.CUSTOMERS, num_facilities=const.FACILITIES)
-g.calculate_mip(False)

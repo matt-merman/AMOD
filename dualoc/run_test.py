@@ -1,12 +1,14 @@
 import performance.test as t
+import performance.chart as c
 
-TRIAL = 500
-NODE = 15
+TRIAL = 700
+NODE = 20
 ALGORITHM = ['Dualoc', 'LP_relaxation', 'LP_lagrangian']
 PATH = ['./performance/result.csv', './performance/mean_result.csv']
 
-def run():
+def run():  
 
+    """
     for path in PATH:
             
         csv = t.CSV(path)
@@ -23,6 +25,10 @@ def run():
         
             test = t.Test(PATH[1], NODE, NODE, algo)
             test.average(trial)
+    """
+    chart = c.Chart()
+    chart.create('./performance/mean_result.csv', 'value')
+    #chart.create('./performance/mean_result.csv', 'time')
 
 if __name__ == '__main__':
     run()
