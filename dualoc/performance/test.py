@@ -1,6 +1,7 @@
 from algorithm.dualoc import *
 from guroby.guroby import *
 import csv, timeit
+from performance.helpers import *
 
 class CSV:
     def __init__(self, file):
@@ -42,11 +43,12 @@ class Test:
     
     def relaxation_test(self):
         g = Guroby(self.facility, self.customer)
-        return g.calculate_mip(False) 
+        return g.lp_relaxation() 
     
     def lagrangian_test(self):
-        #TO-DO
-        return 0
+        g = Guroby(self.facility, self.customer)
+        d = create_multiplier(self.facility, self.customer)
+        return g.lp_lagrangian(d)
         
     def general(self):
         start = timeit.default_timer()

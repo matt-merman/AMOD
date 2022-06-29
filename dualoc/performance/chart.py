@@ -40,12 +40,12 @@ class Chart:
             a = tuple((rect[i],) for i in range(0, l))
             n = tuple((trial[i]) for i in range(0, l))
             
-            legend = self.ax.legend(a, n, title='Number of Trial', fontsize=self.axes_fontsize, labelcolor=self.color)
+            legend = self.ax.legend(a, n, title='Number of Facility', fontsize=self.axes_fontsize, labelcolor=self.color)
             plt.setp(legend.get_title(), color=self.color, fontsize=self.axes_fontsize)
 
             self.ax.set_xticks(ind+((l-1)/2)*width)
             self.ax.set_xticklabels( ('Dualoc', 'LP_relaxation', 'LP_lagrangian'), fontsize=self.axes_fontsize)
-            plt.savefig('test.png')
+            plt.savefig('./performance/result/result.png')
             plt.show()
 
     def autolabel(self, rects):

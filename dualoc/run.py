@@ -1,6 +1,7 @@
 import guroby.guroby as guro
 from algorithm.dualoc import *
 import os, sys
+import numpy as np
 
 def run():
     if len(sys.argv) < 3:
@@ -31,10 +32,19 @@ def run():
         #d.show()
     elif op == 2:
         g = guro.Guroby(c, f)
-        z = g.calculate_mip(False)
+        z = g.lp_relaxation()
     elif op == 3:
+        
+        dict = {}
+        for i in range(f):
+            for j in range(c):
+                key = (j,i)
+                value = np.random.randint(1, 1000)
+                dict[key] = value
+        
+        
         g = guro.Guroby(c, f)
-        z = g.calculate_mip(False)
+        z = g.lp_lagrangian(dict)
     elif op == 4:
         return 
     else:
