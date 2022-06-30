@@ -48,6 +48,15 @@ class Guroby:
         self.m.optimize()
         return self.m.PoolObjVal
 
+    def simplex(self):
+        self.m.addConstrs((self.assign[(c, f)] <= self.select[f]
+                           for c, f in self.cartesian_prod), name='Setup2ship')
+
+        f = self.select.prod(self.setup_cost) + \
+            self.assign.prod(self.shipping_cost)
+
+        return self.solve(f)
+
     def lp_lagrangian(self, multiplier):
 
         coef_1 = []

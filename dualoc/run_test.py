@@ -1,26 +1,32 @@
 import performance.test as t
 import performance.chart as c
 
-TRIAL = 1000
-NODE = 8
+TRIAL = 10
+NODE = 7
+
 ALGORITHM = ['Dualoc', 'LP_relaxation', 'LP_lagrangian']
 PATH = './performance/result/result.csv'
 
-def run():  
-            
+
+def run():
+
+    """
     csv = t.CSV(PATH)
     csv.create_csv()
-        
-    for algo in ALGORITHM:
 
-        for node in range(2, NODE):
-        
+    for node in range(1, NODE):
+
+        for algo in ALGORITHM:
+
             test = t.Test(PATH, node, node, algo)
-            test.calculate_metric(TRIAL)
-    
+            z = test.simplex_test()
+            test.calculate_metric(TRIAL, z)
+
+    """
     chart = c.Chart()
-    chart.create('./performance/result/result.csv', 'value')
-    #chart.create('./performance/result/result.csv', 'time')
+    #chart.error_chart(PATH)
+    chart.time_chart(PATH)
+
 
 if __name__ == '__main__':
     run()

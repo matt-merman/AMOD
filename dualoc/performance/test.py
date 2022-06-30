@@ -13,7 +13,8 @@ class Test:
         self.csv = CSV(file)
         self.function = {"Dualoc": self.dualoc_test, 
                          "LP_relaxation": self.relaxation_test,
-                         "LP_lagrangian": self.lagrangian_test
+                         "LP_lagrangian": self.lagrangian_test,
+                         "Simplex": self.simplex_test
         }
 
     def dualoc_test(self):
@@ -22,6 +23,10 @@ class Test:
         w = d.calculate_w(v)
         return d.calculate_z_s(w, v)
     
+    def simplex_test(self):
+        g = Guroby(self.facility, self.customer)
+        return g.simplex() 
+
     def relaxation_test(self):
         g = Guroby(self.facility, self.customer)
         return g.lp_relaxation() 
@@ -31,10 +36,10 @@ class Test:
         d = create_multiplier(self.facility, self.customer)
         return g.lp_lagrangian(d)
         
-    def calculate_metric(self, trial):
+    def calculate_metric(self, trial, optimal_sol):
         mean_value = 0
         mean_time = 0
-        
+
         for _ in range(0, trial):
             start = timeit.default_timer()
             z = self.function[self.algorithm]()
@@ -44,6 +49,8 @@ class Test:
             mean_time += (stop-start)
 
         mean_value = mean_value/trial
-        mean_time = mean_time/trial
+        error = percent_error(mean_value, optimal_sol)
+        #print(f"{mean_value} {optimal_sol} {error}")
+        mean_time = (mean_time/trial) * 1000
 
-        self.csv.add_row(trial, self.facility, self.customer, self.algorithm, mean_value, mean_time)
+        self.csv.add_row(trial, self.facility, self.customer, self.algorithm, error, mean_time)

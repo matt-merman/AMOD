@@ -5,7 +5,7 @@ class CSV:
         self.file = file
 
     def create_csv(self):
-        header = ['#trial', '#facility', '#customer', 'algorithm', 'value', 'time']
+        header = ['#trial', '#facility', '#customer', 'algorithm', 'error', 'time']
         f = open(self.file, 'w')
         writer = csv.writer(f)
         writer.writerow(header)

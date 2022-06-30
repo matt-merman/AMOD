@@ -11,6 +11,10 @@ def dualoc(c, f):
     w = d.calculate_w(v)
     return d.calculate_z_s(w, v)
 
+def simplex(c,f):
+    print("\nSimplex solution: ")
+    g = guro.Guroby(c, f)
+    return g.simplex()
 
 def relaxation(c, f):
     print("\nLinear Relaxation solution: ")
@@ -30,7 +34,7 @@ def get_input(c, f):
     while True:
         try:
             op = int(input(
-                "\nChoose Algorithm:\n\n1. DUALOC\n2. LP RELAXATION\n3. LP LAGRANGIAN\n4. EXIT\n"))
+                "\nChoose Algorithm:\n\n1. DUALOC\n2. LP RELAXATION\n3. LP LAGRANGIAN\n4. SIMPLEX\n5. EXIT\n"))
         except ValueError:
             print("Wrong Input!")
             continue
@@ -38,16 +42,17 @@ def get_input(c, f):
             print()
             return
 
-        if op not in [1, 2, 3, 4]:
+        if op not in [1, 2, 3, 4, 5]:
             print("Wrong Input!")
             continue
 
-        if op == 4:
+        if op == 5:
             return
 
         command = {1: dualoc,
                    2: relaxation,
                    3: lagrangian,
+                   4: simplex,
                    }
 
         print(command[op](c, f))

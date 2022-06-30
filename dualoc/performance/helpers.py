@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 def create_list(path, attribute):
 
     df = pd.read_csv(path)
@@ -13,6 +14,11 @@ def create_list(path, attribute):
     for t in facility:
         for _, row in df.iterrows():
             if row['#facility'] == t:
+                """
+                s = str(row[attribute])
+                s.replace(".",",")
+                value[index].append(s)
+                """
                 value[index].append(row[attribute])
         index += 1
 
@@ -24,6 +30,14 @@ def create_multiplier(f, c):
     for i in range(f):
         for j in range(c):
             key = (j, i)
-            value = np.random.randint(1, 100)
+            value = np.random.randint(1, 5)
             dic[key] = value
     return dic
+
+# Percent Error = |Experimental Value – Theoretical Value|/|Theoretical value| × 100
+
+
+def percent_error(experimental_value, theoretical_value):
+    n = abs(experimental_value - theoretical_value)
+    d = abs(theoretical_value)
+    return (n/d) * 100
