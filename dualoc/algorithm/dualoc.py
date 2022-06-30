@@ -1,7 +1,6 @@
 from guroby.helpers import *
 import guroby.constants as const
 from itertools import product
-from algorithm.helpers import * 
 
 class Dualoc:
     def __init__(self, num_customers, num_facilities):
@@ -90,18 +89,3 @@ class Dualoc:
             #print(f"| {v[i]} |")
         #print(f"z = {sum(v)}")
         return sum(v)
-
-    def show(self):
-        x_customers = []
-        y_customers = []
-        for i in range(0, self.num_customers):
-            x_customers.append(self.customers[i][0])
-            y_customers.append(self.customers[i][1])
-
-        x_facilities = []
-        y_facilities = []
-        for i in range(0, self.num_facilities):
-            x_facilities.append(self.facilities[i][0])
-            y_facilities.append(self.facilities[i][1])
-
-        showGraph(x_customers, y_customers, x_facilities, y_facilities)

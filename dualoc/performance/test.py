@@ -1,28 +1,9 @@
 from algorithm.dualoc import *
 from guroby.guroby import *
-import csv, timeit
+import timeit
 from performance.helpers import *
+from performance.csv import *
 
-class CSV:
-    def __init__(self, file):
-        self.file = file
-
-    def create_csv(self):
-
-        header = ['#trial', '#facility', '#customer', 'algorithm', 'value', 'time']
-        f = open(self.file, 'w')
-        writer = csv.writer(f)
-        writer.writerow(header)
-        f.close()
-    
-    def add_row(self, trial, facility, customer, algorithm, value, time):
-        list_data=[trial, facility, customer, algorithm, value, time]
-        
-        with open(self.file, 'a', newline='') as f_object:  
-            writer_object = csv.writer(f_object)
-            writer_object.writerow(list_data)  
-            f_object.close()
-    
 class Test:
     def __init__(self, file, facility, customer, algorithm):
         self.facility = facility
@@ -50,14 +31,7 @@ class Test:
         d = create_multiplier(self.facility, self.customer)
         return g.lp_lagrangian(d)
         
-    def general(self):
-        start = timeit.default_timer()
-        z = self.function[self.algorithm]()
-        stop = timeit.default_timer()
-        
-        self.csv.add_row('NULL', self.facility, self.customer, self.algorithm, z, stop-start)
-    
-    def average(self, trial):
+    def calculate_metric(self, trial):
         mean_value = 0
         mean_time = 0
         

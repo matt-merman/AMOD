@@ -7,6 +7,7 @@ from gurobipy import GRB
 # tested with Gurobi v9.1.0 and Python 3.7.0
 # based on: https://colab.research.google.com/github/Gurobi/modeling-examples/blob/master/facility_location/facility_location_gcl.ipynb
 
+
 class Guroby:
     def __init__(self, num_customers, num_facilities):
         self.num_customers = num_customers
@@ -33,43 +34,50 @@ class Guroby:
         # set different solution methods (https://www.gurobi.com/documentation/9.5/refman/method.html)
         self.m.Params.Method = 0
 
-    def lp_lagrangian(self, multiplier):
-        f_1 = sum([(self.setup_cost[f] - sum([v for k, v in multiplier.items() if k[1] == f]))
-                  for f in range(self.num_facilities)])
-        f_2 = sum([(self.shipping_cost[(c, f)] + multiplier[(c, f)])
-                  for c in range(self.num_customers) for f in range(self.num_facilities)])
+        self.select = self.m.addVars(num_facilities,
+                                     vtype=GRB.BINARY, name='Select')
+        self.assign = self.m.addVars(self.cartesian_prod,
+                                     vtype=GRB.BINARY, name='Assign')
 
-        self.m.addVars(self.num_facilities, vtype=GRB.BINARY,
-                  obj=f_1, name='Select')
-        assign = self.m.addVars(self.cartesian_prod,
-                           vtype=GRB.BINARY, obj=f_2, name='Assign')
+        self.m.addConstrs((gp.quicksum(self.assign[(c, f)] for f in range(
+            num_facilities)) == 1 for c in range(num_customers)), name='Demand')
 
-        self.m.addConstrs((gp.quicksum(assign[(c, f)] for f in range(
-            self.num_facilities)) == 1 for c in range(self.num_customers)), name='Demand')
-
-        # m.write('f.lp')
+    def solve(self, obj_func):
+        self.m.setObjective(obj_func, GRB.MINIMIZE)
+        # self.m.write('f.lp')
         self.m.optimize()
-
         return self.m.PoolObjVal
+
+    def lp_lagrangian(self, multiplier):
+
+        coef_1 = []
+        coef_2 = {}
+        lambda_sum = 0
+        for f in range(self.num_facilities):
+            for k, v in multiplier.items():
+                if k[1] == f:
+                    lambda_sum += v
+
+            coef_1.append(self.setup_cost[f] - lambda_sum)
+            lambda_sum = 0
+
+            for c in range(self.num_customers):
+                c_uv = self.shipping_cost[(c, f)]
+                lambda_uv = multiplier.get(c, f)
+                coef_2[(f, c)] = c_uv + lambda_uv
+
+        f = self.select.prod(coef_1)+self.assign.prod(coef_2)
+
+        return self.solve(f)
 
     def lp_relaxation(self):
-        select = self.m.addVars(self.num_facilities,
-                           vtype=GRB.BINARY, name='Select')
-        assign = self.m.addVars(self.cartesian_prod,
-                           vtype=GRB.BINARY, name='Assign')
+        self.m.addConstrs((self.assign[(c, f)] <= self.select[f]
+                           for c, f in self.cartesian_prod), name='Setup2ship')
 
-        self.m.addConstrs((assign[(c, f)] <= select[f]
-                     for c, f in self.cartesian_prod), name='Setup2ship')
-        self.m.addConstrs((gp.quicksum(assign[(c, f)] for f in range(
-            self.num_facilities)) == 1 for c in range(self.num_customers)), name='Demand')
-
-        f = select.prod(self.setup_cost)+assign.prod(self.shipping_cost)
-        self.m.setObjective(f, GRB.MINIMIZE)
-
-        # (https://www.gurobi.com/documentation/9.5/refman/py_model_relax.html)
+        # see: https://www.gurobi.com/documentation/9.5/refman/py_model_relax.html
         self.m.relax()
 
-        #m.write('f.lp')
-        self.m.optimize()
+        f = self.select.prod(self.setup_cost) + \
+            self.assign.prod(self.shipping_cost)
 
-        return self.m.PoolObjVal
+        return self.solve(f)

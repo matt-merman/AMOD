@@ -20,10 +20,10 @@ def create_list(path, attribute):
 
 
 def create_multiplier(f, c):
-    dict = {}
+    dic = {}
     for i in range(f):
         for j in range(c):
             key = (j, i)
-            value = np.random.randint(1, 1000)
-            dict[key] = value
-    return dict
+            value = np.random.randint(1, 100)
+            dic[key] = value
+    return dic
