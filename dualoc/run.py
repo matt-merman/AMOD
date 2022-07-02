@@ -26,7 +26,11 @@ def lagrangian(c, f):
     print("\nLagrangian Relaxation solution: ")
     d = create_multiplier(f, c)
     g = guro.Guroby(c, f)
-    return g.lp_lagrangian(d)
+    
+    #to substitute with feasible solution
+    B = g.simplex()
+    
+    return g.lp_lagrangian(d, 100, None, B)
 
 
 def get_input(c, f):

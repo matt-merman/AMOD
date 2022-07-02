@@ -1,6 +1,35 @@
 import random
+import re
 from math import sqrt
 import guroby.constants as const
+
+
+def conv2dict(fac, cust, s):
+
+    d = {}
+    for i in range(fac):
+        for j in range(cust):
+            key = (j, i)
+            value = s[2*i+j]
+            d[key] = value
+
+    return d
+
+
+def filterDigit(len, model):
+    digitList = []
+    pattern_one = re.compile(r' \d.\d')
+    pattern_two = re.compile(r'-\d.\d')
+    for i in range(len):
+
+        s = str(model.getVars()[i])
+        mo = pattern_one.search(s)
+        if mo == None:
+            mo = pattern_two.search(s)
+
+        digitList.append(int(mo.group()[1]))
+
+    return digitList
 
 
 def populate_one(element):

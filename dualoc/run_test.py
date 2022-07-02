@@ -1,5 +1,6 @@
 import performance.test as t
 import performance.chart as c
+import os
 
 TRIAL = 10
 NODE = 7
@@ -9,6 +10,12 @@ PATH = './performance/result/result.csv'
 
 
 def run():
+
+    os.system("clear")
+    print("*********************************************")
+    print("*****       Dualoc Implementation       *****")
+    print("*****          [Start of Test]          *****")
+    print("*********************************************")
 
     """
     csv = t.CSV(PATH)
@@ -24,7 +31,7 @@ def run():
 
     """
     chart = c.Chart()
-    #chart.error_chart(PATH)
+    chart.error_chart(PATH)
     chart.time_chart(PATH)
 
 

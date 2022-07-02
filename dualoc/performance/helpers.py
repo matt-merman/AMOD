@@ -14,11 +14,6 @@ def create_list(path, attribute):
     for t in facility:
         for _, row in df.iterrows():
             if row['#facility'] == t:
-                """
-                s = str(row[attribute])
-                s.replace(".",",")
-                value[index].append(s)
-                """
                 value[index].append(row[attribute])
         index += 1
 

@@ -1,5 +1,6 @@
 from itertools import product
 from guroby.helpers import *
+from guroby.subgradient import *
 import guroby.constants as const
 import gurobipy as gp
 from gurobipy import GRB
@@ -46,7 +47,17 @@ class Guroby:
         self.m.setObjective(obj_func, GRB.MINIMIZE)
         # self.m.write('f.lp')
         self.m.optimize()
-        return self.m.PoolObjVal
+
+        nSolutions = self.m.SolCount
+        #print(nSolutions)
+        #for e in range(nSolutions):
+        self.m.setParam(GRB.Param.SolutionNumber, nSolutions - 1)
+        print("############")
+        print(self.m.PoolObjVal)
+        print(self.m.objVal)
+        print("############")
+
+        return self.m.objVal
 
     def simplex(self):
         self.m.addConstrs((self.assign[(c, f)] <= self.select[f]
@@ -57,14 +68,19 @@ class Guroby:
 
         return self.solve(f)
 
-    def lp_lagrangian(self, multiplier):
+    def lp_lagrangian(self, multiplier, k, lb, B):
+
+        if (k == 0):
+            return lb
+
+        #print(lb)
 
         coef_1 = []
         coef_2 = {}
         lambda_sum = 0
         for f in range(self.num_facilities):
-            for k, v in multiplier.items():
-                if k[1] == f:
+            for key, v in multiplier.items():
+                if key[1] == f:
                     lambda_sum += v
 
             coef_1.append(self.setup_cost[f] - lambda_sum)
@@ -76,8 +92,16 @@ class Guroby:
                 coef_2[(f, c)] = c_uv + lambda_uv
 
         f = self.select.prod(coef_1)+self.assign.prod(coef_2)
+        lb = self.solve(f)
 
-        return self.solve(f)
+        new_multiplier = subgradient(lb, multiplier, len(
+            self.cartesian_prod), self.num_facilities, self.num_customers, B, self.m)
+        if new_multiplier == 0:
+            return lb
+
+        k -= 1
+
+        return self.lp_lagrangian(new_multiplier, k, lb, B)
 
     def lp_relaxation(self):
         self.m.addConstrs((self.assign[(c, f)] <= self.select[f]
