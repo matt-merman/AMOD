@@ -10,7 +10,7 @@ class Chart:
         self.color = "grey"
         self.title_fontsize = 15
         self.axes_fontsize = 9
-        self.text_pad = 20
+        self.text_pad = 25
         self.context = {'axes.edgecolor': 'grey', 'axes.facecolor': 'black',
                         'font.family': 'monospace', 'figure.facecolor': 'black',
                         'figure.edgecolor': 'black', 'xtick.color': 'grey',
@@ -21,7 +21,7 @@ class Chart:
     def autolabel(self, rects, ax):
         for rect in rects:
             h = rect.get_height()
-            ax.text(rect.get_x()+rect.get_width()/2., h, "%.3f" % h,
+            ax.text(rect.get_x()+rect.get_width()/2., h, "%.4f" % h,
                     ha='center', va='bottom', rotation=0, fontsize='xx-small', color=self.color)
 
     def set_chart(self, plt):
@@ -37,8 +37,8 @@ class Chart:
         a = tuple((rect[i],) for i in range(0, l))
         n = tuple((trial[i]) for i in range(0, l))
 
-        legend = ax.legend(a, n, title='Number of Facility/Customer', markerscale=0.4,
-                           fontsize=self.axes_fontsize, labelcolor=self.color)
+        legend = ax.legend(a, n, title='Number of Facility/Customer', loc='upper center', markerscale=.85,
+                           bbox_to_anchor=(0.5, 1.05), ncol=6, fontsize=self.axes_fontsize, labelcolor=self.color)
         plt.setp(legend.get_title(), color=self.color,
                  fontsize=self.axes_fontsize)
 

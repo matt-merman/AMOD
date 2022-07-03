@@ -10,10 +10,15 @@ from gurobipy import GRB
 
 
 class Guroby:
-    def __init__(self, num_customers, num_facilities):
+    def __init__(self, num_customers, num_facilities, setup_cost, cartesian_prod, shipping_cost):
         self.num_customers = num_customers
         self.num_facilities = num_facilities
 
+
+        self.setup_cost = setup_cost
+        self.cartesian_prod = cartesian_prod
+        self.shipping_cost = shipping_cost
+        """
         customers = populate_one(num_customers)
         facilities = populate_one(num_facilities)
         self.setup_cost = populate_two(num_facilities)
@@ -24,6 +29,7 @@ class Guroby:
         # Compute shipping costs
         self.shipping_cost = {(c, f): const.COST_PER_MILE*compute_distance(
             customers[c], facilities[f]) for c, f in self.cartesian_prod}
+        """
 
         # hide output
         env = gp.Env(empty=True)
@@ -43,37 +49,38 @@ class Guroby:
         self.m.addConstrs((gp.quicksum(self.assign[(c, f)] for f in range(
             num_facilities)) == 1 for c in range(num_customers)), name='Demand')
 
-    def solve(self, obj_func):
+        # (https://support.gurobi.com/hc/en-us/community/posts/360048467412-Separating-specific-cuts)
+        self.m.setParam(GRB.Param.Presolve, 0);
+        self.m.setParam(GRB.Param.Cuts, 0);
+        self.m.setParam(GRB.Param.Heuristics, 0); 
+
+
+    def solve(self, obj_func, quality):
         self.m.setObjective(obj_func, GRB.MINIMIZE)
         # self.m.write('f.lp')
         self.m.optimize()
 
         nSolutions = self.m.SolCount
-        #print(nSolutions)
-        #for e in range(nSolutions):
-        self.m.setParam(GRB.Param.SolutionNumber, nSolutions - 1)
-        print("############")
-        print(self.m.PoolObjVal)
-        print(self.m.objVal)
-        print("############")
+        self.m.setParam(GRB.Param.SolutionNumber, nSolutions-1)
+        
+        if quality == 0:
+            return self.m.PoolObjVal
+        else:
+            return self.m.objVal
 
-        return self.m.objVal
-
-    def simplex(self):
+    def simplex(self, quality):
         self.m.addConstrs((self.assign[(c, f)] <= self.select[f]
                            for c, f in self.cartesian_prod), name='Setup2ship')
 
         f = self.select.prod(self.setup_cost) + \
             self.assign.prod(self.shipping_cost)
 
-        return self.solve(f)
+        return self.solve(f, quality)
 
-    def lp_lagrangian(self, multiplier, k, lb, B):
+    def lp_lagrangian(self, multiplier, k, lb, B, result):
 
-        if (k == 0):
+        if check_lastest_result(result, k):
             return lb
-
-        #print(lb)
 
         coef_1 = []
         coef_2 = {}
@@ -92,7 +99,7 @@ class Guroby:
                 coef_2[(f, c)] = c_uv + lambda_uv
 
         f = self.select.prod(coef_1)+self.assign.prod(coef_2)
-        lb = self.solve(f)
+        lb = self.solve(f, 1)
 
         new_multiplier = subgradient(lb, multiplier, len(
             self.cartesian_prod), self.num_facilities, self.num_customers, B, self.m)
@@ -100,8 +107,9 @@ class Guroby:
             return lb
 
         k -= 1
-
-        return self.lp_lagrangian(new_multiplier, k, lb, B)
+        
+        result.append(lb)
+        return self.lp_lagrangian(new_multiplier, k, lb, B, result)
 
     def lp_relaxation(self):
         self.m.addConstrs((self.assign[(c, f)] <= self.select[f]
@@ -113,4 +121,4 @@ class Guroby:
         f = self.select.prod(self.setup_cost) + \
             self.assign.prod(self.shipping_cost)
 
-        return self.solve(f)
+        return self.solve(f, 1)

@@ -11,10 +11,12 @@ def dualoc(c, f):
     w = d.calculate_w(v)
     return d.calculate_z_s(w, v)
 
-def simplex(c,f):
+
+def simplex(c, f):
     print("\nSimplex solution: ")
     g = guro.Guroby(c, f)
-    return g.simplex()
+    return g.simplex(1)
+
 
 def relaxation(c, f):
     print("\nLinear Relaxation solution: ")
@@ -26,11 +28,10 @@ def lagrangian(c, f):
     print("\nLagrangian Relaxation solution: ")
     d = create_multiplier(f, c)
     g = guro.Guroby(c, f)
-    
-    #to substitute with feasible solution
-    B = g.simplex()
-    
-    return g.lp_lagrangian(d, 100, None, B)
+
+    # calculate feasible solution
+    B = g.simplex(0)
+    return g.lp_lagrangian(d, 10, None, B, [])
 
 
 def get_input(c, f):

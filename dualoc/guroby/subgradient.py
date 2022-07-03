@@ -12,10 +12,11 @@ def subgradient(lb, multiplier, num_cartesian_prod, num_facilities, num_customer
     # STEP 3
     A = []
     row = [0] * l
+
     for i in range(num_facilities):
-        for j in range(num_facilities, num_cartesian_prod-1):
+        for j in range(num_facilities, num_cartesian_prod+num_facilities-1, num_facilities):
             row[i] = 1
-            row[j + 2*i] = -1
+            row[j+i] = -1
             A.append(row)
             row = [0] * l
 
@@ -24,7 +25,8 @@ def subgradient(lb, multiplier, num_cartesian_prod, num_facilities, num_customer
     x = np.array(x)
     # s(h) := b−Ax(h)
     s = A.dot(-x)
-    if s == row:
+
+    if np.all((s == 0)):
         return 0
 
     # STEP 4

@@ -1,8 +1,15 @@
-import random
-import re
+import random, re
 from math import sqrt
 import guroby.constants as const
+from itertools import groupby
 
+def check_lastest_result(result, k):
+    if len(result) < k:
+        return False
+    else:
+        last_result = result[-k:]
+        g = groupby(last_result)
+        return next(g, True) and not next(g, False)
 
 def conv2dict(fac, cust, s):
 

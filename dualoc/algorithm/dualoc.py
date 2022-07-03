@@ -3,12 +3,17 @@ import guroby.constants as const
 from itertools import product
 
 class Dualoc:
-    def __init__(self, num_customers, num_facilities):
+    def __init__(self, num_customers, num_facilities, setup_cost, cartesian_prod, shipping_cost):
         self.num_customers = num_customers
         self.num_facilities = num_facilities
         
         self.w = {}
 
+        self.setup_cost = setup_cost
+        self.catesian_prod = cartesian_prod
+        self.shipping_cost = shipping_cost
+         
+        """
         self.customers = populate_one(self.num_customers)
         self.facilities = populate_one(self.num_facilities)
         self.setup_cost = populate_two(self.num_facilities)
@@ -17,6 +22,7 @@ class Dualoc:
 
         # Compute shipping costs
         self.shipping_cost = {(c,f): const.COST_PER_MILE*compute_distance(self.customers[c], self.facilities[f]) for c, f in self.cartesian_prod}
+        """
 
     def calculate_z(self):
         values = []
