@@ -37,7 +37,7 @@ class Chart:
         a = tuple((rect[i],) for i in range(0, l))
         n = tuple((trial[i]) for i in range(0, l))
 
-        legend = ax.legend(a, n, title='Number of Facility/Customer', loc='upper center', markerscale=.85,
+        legend = ax.legend(a, n, title='Number of Trial', loc='upper center', markerscale=.85,
                            bbox_to_anchor=(0.5, 1.05), ncol=6, fontsize=self.axes_fontsize, labelcolor=self.color)
         plt.setp(legend.get_title(), color=self.color,
                  fontsize=self.axes_fontsize)
@@ -95,7 +95,7 @@ class Chart:
 
             self.set_legend(ax, plt_instance, rect, trial)
 
-            plt_instance.ylabel('Time (ms)', fontsize=self.axes_fontsize,
+            plt_instance.ylabel('Time (s)', fontsize=self.axes_fontsize,
                                 color=self.color)
 
             ax.set_xticks(self.ind+((l-1)/2)*self.width)

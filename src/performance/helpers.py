@@ -5,7 +5,7 @@ import numpy as np
 def create_list(path, attribute):
 
     df = pd.read_csv(path)
-    facility = df['#facility'].tolist()
+    facility = df['#trial'].tolist()
     facility = list(set(facility))
     facility.sort()
     value = [[] for _ in range(0, len(facility))]
@@ -13,7 +13,7 @@ def create_list(path, attribute):
     index = 0
     for t in facility:
         for _, row in df.iterrows():
-            if row['#facility'] == t:
+            if row['#trial'] == t:
                 value[index].append(row[attribute])
         index += 1
 
