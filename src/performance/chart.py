@@ -95,7 +95,7 @@ class Chart:
 
             self.set_legend(ax, plt_instance, rect, trial)
 
-            plt_instance.ylabel('Time (s)', fontsize=self.axes_fontsize,
+            plt_instance.ylabel('Time (ms)', fontsize=self.axes_fontsize,
                                 color=self.color)
 
             ax.set_xticks(self.ind+((l-1)/2)*self.width)

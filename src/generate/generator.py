@@ -2,45 +2,43 @@ import random
 from itertools import product
 from math import sqrt
 
-MAX = 5
-COST_PER_MILE = 1
-
 
 class Generator:
     def __init__(self):
         pass
 
-        # to determine the Euclidean distance between a facility and customer sites.
-    def compute_distance(self, loc1, loc2):
+    # to determine the Euclidean distance between a facility and customer sites.
+    def get_distance(self, loc1, loc2):
         dx = loc1[0] - loc2[0]
         dy = loc1[1] - loc2[1]
         return sqrt(dx*dx + dy*dy)
 
-    def populate_one(self, element):
-        l = []
-        for _ in range(element):
-            x = random.randint(1, MAX)
-            y = random.randint(1, MAX)
-            l.append((x, y))
-        return l
+    def get_coordinates(self, elements, lower_bound, upper_bound):
+        elements_list = []
+        for _ in range(elements):
+            x = random.randint(lower_bound, upper_bound)
+            y = random.randint(lower_bound, upper_bound)
+            element = (x, y)
+            elements_list.append(element)
+        return elements_list
 
-    def populate_two(self, element):
-        l = []
-        for _ in range(element):
-            x = random.randint(1, MAX)
-            l.append(x)
-        return l
+    def generate_instance(self, customers, facilities, setup_interval, customers_interval, facilities_interval):
 
-    def generate_instance(self, customers, facilities):
-        customers_list = self.populate_one(customers)
-        facilities_list = self.populate_one(facilities)
-        setup_cost_list = self.populate_two(facilities)
+        setup_cost_list = []
+        for _ in range(facilities):
+            setup_cost_list.append(random.randint(
+                setup_interval[0], setup_interval[1]))
+
+        customers_list = self.get_coordinates(
+            customers, customers_interval[0], customers_interval[1])
+        facilities_list = self.get_coordinates(
+            facilities, facilities_interval[0], facilities_interval[1])
 
         cartesian_prod_list = list(
             product(range(customers), range(facilities)))
 
         # Compute shipping costs
-        shipping_cost_dic = {(c, f): COST_PER_MILE*self.compute_distance(
+        shipping_cost_dic = {(c, f): self.get_distance(
             customers_list[c], facilities_list[f]) for c, f in cartesian_prod_list}
 
         return setup_cost_list, cartesian_prod_list, shipping_cost_dic

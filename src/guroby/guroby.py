@@ -36,9 +36,6 @@ class Guroby:
         self.assign = self.model.addVars(self.cartesian_prod,
                                          vtype=GRB.BINARY, name='Assign')
 
-        print(self.customers)
-        print(self.facilities)
-
         self.model.addConstrs((gp.quicksum(self.assign[(customer, facility)] for facility in range(facilities)) == 1 for customer in range(customers)), name='Demand')
 
         # to disactivate presolve options and others 
