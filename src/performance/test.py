@@ -4,7 +4,7 @@ from performance.helpers import *
 from generate.generator import *
 from performance.csv import *
 from statistics import variance
-
+from performance.chart import *
 
 class Test:
     def __init__(self):
@@ -15,168 +15,164 @@ class Test:
                       4: self.test_five
                       }
         self.trial = 10
-        # Do not change
-        self.facilities = 2
-        self.customers = 3
         self.algorithm = ['Dualoc', 'LP_relaxation', 'LP_lagrangian']
-        self.path = './performance/result/result.csv'
+        self.path = './performance/result/'
+        self.max = 1000
 
-        csv = CSV(self.path)
-        csv.create_csv()
+        #(facilities, customers)
+        self.nodes = [(30, 30), (5, 30), (30, 5)]
 
         console = Console()
         tasks = [f"test {n}" for n in range(
-            1, len(self.algorithm) * self.trial*6 * self.facilities * self.customers)]
+            1, len(self.tests) * len(self.algorithm) * self.trial * 6 * self.trial * len(self.nodes))]
 
-        for t in range(0, 1):
+        for n in range(0, len(self.nodes)):
 
-            with console.status("[bold green]Working on test..."):
-                for trial_interval in range(1, self.trial*6, self.trial):
+            for t in range(0, len(self.tests)):
+                
+                local_path = self.path + 'result_test_' + str(t) + '.csv'
+                csv = CSV(local_path)
+                csv.create_csv()
+                
+                with console.status("[bold green]Working on test..."):
+                    for trial_interval in range(0, self.trial * 6, self.trial): 
+                        
+                        if trial_interval == 0: continue
 
-                    time = [0] * len(self.algorithm)
-                    value = [0] * len(self.algorithm)
+                        time = [0] * len(self.algorithm)
+                        value = [0] * len(self.algorithm)
 
-                    index = 0
-                    for algo in self.algorithm:
+                        index = 0
+                        for algo in self.algorithm:
 
-                        new_value = 0
-                        new_time = 0
+                            new_value = 0
+                            new_time = 0
 
-                        for _ in range(trial_interval):
+                            for _ in range(trial_interval):
 
-                            setup_interval, customers_interval, facilities_interval = self.tests[t](
-                            )
+                                setup_interval, customers_interval = self.tests[t](
+                                )
 
-                            #sample1 = (1412, 900)
-                            # print(variance(sample1))
+                                generator = Generator()
+                                setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(
+                                    self.nodes[n][1], self.nodes[n][0], setup_interval, customers_interval)
 
-                            generator = Generator()
-                            setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(
-                                self.customers, self.facilities, setup_interval, customers_interval, facilities_interval)
+                                #return
 
-                            #print(setup_cost)
-                            #print(shipping_cost)
+                                task = tasks.pop(0)
+                                console.log(f"[STARTING]    {task} on {algo}")
 
-                            #return
+                                test = Algorithm(self.nodes[n][1], self.nodes[n][0], algo,
+                                                setup_cost, cartesian_prod, shipping_cost)
+                                z = test.simplex_test()
 
-                            task = tasks.pop(0)
-                            console.log(f"[STARTING]    {task} on {algo}")
+                                new_value, new_time = test.calculate_metric()
+                                time[index] += new_time
+                                value[index] += new_value
 
-                            test = Algorithm(self.customers, self.facilities, algo,
-                                             setup_cost, cartesian_prod, shipping_cost)
-                            z = test.simplex_test()
+                                console.log(f"[COMPLETED]   {task} on {algo}")
 
-                            new_value, new_time = test.calculate_metric()
-                            time[index] += new_time
-                            value[index] += new_value
+                            mean_value = (value[index]/trial_interval)
+                            error = percent_error(mean_value, z)
+                            mean_time = (time[index]/trial_interval)*1000
 
-                            console.log(f"[COMPLETED]   {task} on {algo}")
+                            csv.add_row(trial_interval, self.nodes[n][1],
+                                        self.nodes[n][0], algo, error, mean_time)
 
-                        mean_value = (value[index]/trial_interval)
-                        error = percent_error(mean_value, z)
-                        mean_time = (time[index]/trial_interval)*1000
+                            index += 1
+            
+                chart = Chart()
+                chart.error_chart(local_path, self.path + 'chart_error_' + str(t) + '.png')
+                chart.time_chart(local_path,  self.path + 'chart_time_' + str(t) + '.png')
 
-                        csv.add_row(trial_interval, self.customers,
-                                    self.facilities, algo, error, mean_time)
 
-                        index += 1
-
-    # TEST CASE 3: setup cost ~ shipping cost
+    # TEST CASE 1: setup cost = shipping cost
+    # worth case: ratio(shipping cost/setup cost) = 1/95
     def test_one(self):
 
-        ub_setup_cost = 100
-        lb_setup_cost = ub_setup_cost * .9
+        ub_setup_cost = self.max
+        lb_setup_cost = ub_setup_cost * .95
 
-        lb_customer = lb_setup_cost
-        ub_customer = ub_setup_cost
+        lb_customer = ub_setup_cost
+        ub_customer = ub_setup_cost * .95
 
-        lb_facility = 1
-        ub_facility = ub_setup_cost * .1
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
-        facilities_interval = (lb_facility, ub_facility)
 
-        return setup_interval, customers_interval, facilities_interval
+        return setup_interval, customers_interval
 
     # TEST CASE 2: setup cost >> shipping cost
-    # minimun value for shipping cost: 1.5% of setup cost
-    # maximun value for shipping cost: 12% of setup cost
+    # worth case: ratio(shipping cost/setup cost) = 1/10
+    # best case: ratio(shipping cost/setup cost) = 1/9.5
     def test_two(self):
 
-        ub_setup_cost = 1000
-        lb_setup_cost = ub_setup_cost * .9
+        ub_setup_cost = self.max
+        lb_setup_cost = ub_setup_cost * .95
 
-        lb_facility = 1
-        ub_facility = ub_setup_cost * .1
-
-        lb_customer = lb_facility + 1
-        ub_customer = ub_setup_cost * .1
+        lb_customer = ub_setup_cost * .10
+        ub_customer = 1
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
-        facilities_interval = (lb_facility, ub_facility)
 
-        return setup_interval, customers_interval, facilities_interval
+        return setup_interval, customers_interval
 
     # TEST CASE 3: setup cost << shipping cost
-    # minimun value for shipping cost: 1.5% of setup cost
-    # maximun value for shipping cost: 12% of setup cost
-
-    # TO-DO
+    # worth case: ratio(shipping cost/setup cost) = 10
+    # best case: ratio(shipping cost/setup cost) = 9.5
     def test_three(self):
 
-        ub_setup_cost = 1000
-        lb_setup_cost = ub_setup_cost * .1
+        ub_customer = self.max
+        lb_customer = ub_customer * .95
 
-        ub_facility = 1000
-        lb_facility = ub_facility * .9
-
-        ub_customer = 1000
-        lb_customer = (ub_customer * .9) + 1
-
-        setup_interval = (lb_setup_cost, ub_setup_cost)
-        customers_interval = (lb_customer, ub_customer)
-        facilities_interval = (lb_facility, ub_facility)
-
-        return setup_interval, customers_interval, facilities_interval
-
-    # TEST CASE 4: high variance in setup cost/low variance in shipping cost
-    # maximun value for variance in shipping cost: 2*10^4
-    # maximun value for variance in setup cost: 5 * 10^6
-    def test_four(self):
-
-        ub_setup_cost = 1000
+        ub_setup_cost = ub_customer * .10
         lb_setup_cost = 1
 
-        lb_facility = 1
-        ub_facility = 1
+        setup_interval = (lb_setup_cost, ub_setup_cost)
+        customers_interval = (lb_customer, ub_customer)
 
-        lb_customer = lb_facility + 1
-        ub_customer = ub_setup_cost * .2
+        return setup_interval, customers_interval
+
+    # TEST CASE 4: high variance in setup cost/low variance in shipping cost
+    def test_four(self):
+
+        ub_setup_cost = self.max
+        lb_setup_cost = ub_setup_cost * .50
+
+        lb_customer = ub_setup_cost * .10
+        ub_customer = ub_setup_cost * .20
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
-        facilities_interval = (lb_facility, ub_facility)
 
-        return setup_interval, customers_interval, facilities_interval
+        #sample1 = (10, 5)
+        #print(variance(sample1))
+
+        #sample1 = (1, 2)
+        #print(variance(sample1))
+        
+        return setup_interval, customers_interval
 
     # TEST CASE 5: low variance in setup cost/high variance in shipping cost
-    # maximun value for variance in shipping cost: 9 * 10^6
-    # maximun value for variance in setup cost: 5 * 10^3
     def test_five(self):
 
-        ub_setup_cost = 1000
-        lb_setup_cost = ub_setup_cost * .9
+        ub_setup_cost = self.max
+        lb_setup_cost = ub_setup_cost * .90
 
-        lb_facility = 1
-        ub_facility = ub_setup_cost
-
-        lb_customer = lb_facility + 1
+        lb_customer = ub_setup_cost * .50
         ub_customer = ub_setup_cost
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
-        facilities_interval = (lb_facility, ub_facility)
 
-        return setup_interval, customers_interval, facilities_interval
+        #sample1 = (10, 9)
+        #print(variance(sample1))
+
+        #sample1 = (5, 10)
+        #print(variance(sample1))
+
+        setup_interval = (lb_setup_cost, ub_setup_cost)
+        customers_interval = (lb_customer, ub_customer)
+
+        return setup_interval, customers_interval

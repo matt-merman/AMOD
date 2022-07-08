@@ -39,11 +39,10 @@ def get_input(customer, facility):
 
     setup_interval = (1, 1000)
     customers_interval = (1, 100)
-    facilities_interval = (1, 100)
 
     # create random data
     generator = Generator()
-    setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(customer, facility, setup_interval, customers_interval, facilities_interval)
+    setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(customer, facility, setup_interval, customers_interval)
 
     while True:
         try:

@@ -42,7 +42,7 @@ class Chart:
         plt.setp(legend.get_title(), color=self.color,
                  fontsize=self.axes_fontsize)
 
-    def error_chart(self, path):
+    def error_chart(self, path, path_to_save):
 
         value, trial = create_list(path, 'error')
         l = len(trial)
@@ -69,10 +69,10 @@ class Chart:
                                 fontsize=self.axes_fontsize, color=self.color)
 
             ax.set_xticks(self.ind+((l-1)/2)*self.width)
-            plt_instance.savefig('./performance/result/result_error.png')
+            plt_instance.savefig(path_to_save)
             plt_instance.show()
 
-    def time_chart(self, path):
+    def time_chart(self, path, path_to_save):
 
         value, trial = create_list(path, 'time')
         l = len(trial)
@@ -99,5 +99,5 @@ class Chart:
                                 color=self.color)
 
             ax.set_xticks(self.ind+((l-1)/2)*self.width)
-            plt_instance.savefig('./performance/result/result_time.png')
+            plt_instance.savefig(path_to_save)
             plt_instance.show()

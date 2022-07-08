@@ -13,10 +13,5 @@ def run():
 
     Test()
 
-    #chart = Chart()
-    #chart.error_chart('./performance/result/result.csv')
-    #chart.time_chart('./performance/result/result.csv')
-
-
 if __name__ == '__main__':
     run()
