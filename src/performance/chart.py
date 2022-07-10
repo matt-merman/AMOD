@@ -70,7 +70,7 @@ class Chart:
 
             ax.set_xticks(self.ind+((l-1)/2)*self.width)
             plt_instance.savefig(path_to_save)
-            plt_instance.show()
+            #plt_instance.show()
 
     def time_chart(self, path, path_to_save):
 
@@ -100,4 +100,4 @@ class Chart:
 
             ax.set_xticks(self.ind+((l-1)/2)*self.width)
             plt_instance.savefig(path_to_save)
-            plt_instance.show()
+            #plt_instance.show()

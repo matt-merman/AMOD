@@ -6,6 +6,7 @@ from performance.csv import *
 from statistics import variance
 from performance.chart import *
 
+
 class Test:
     def __init__(self):
         self.tests = {0: self.test_one,
@@ -29,15 +30,16 @@ class Test:
         for n in range(0, len(self.nodes)):
 
             for t in range(0, len(self.tests)):
-                
+
                 local_path = self.path + 'result_test_' + str(t) + '.csv'
                 csv = CSV(local_path)
                 csv.create_csv()
-                
+
                 with console.status("[bold green]Working on test..."):
-                    for trial_interval in range(0, self.trial * 6, self.trial): 
-                        
-                        if trial_interval == 0: continue
+                    for trial_interval in range(0, self.trial * 7, self.trial):
+
+                        if trial_interval == 0:
+                            continue
 
                         time = [0] * len(self.algorithm)
                         value = [0] * len(self.algorithm)
@@ -57,13 +59,11 @@ class Test:
                                 setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(
                                     self.nodes[n][1], self.nodes[n][0], setup_interval, customers_interval)
 
-                                #return
-
                                 task = tasks.pop(0)
                                 console.log(f"[STARTING]    {task} on {algo}")
 
                                 test = Algorithm(self.nodes[n][1], self.nodes[n][0], algo,
-                                                setup_cost, cartesian_prod, shipping_cost)
+                                                 setup_cost, cartesian_prod, shipping_cost)
                                 z = test.simplex_test()
 
                                 new_value, new_time = test.calculate_metric()
@@ -80,22 +80,23 @@ class Test:
                                         self.nodes[n][0], algo, error, mean_time)
 
                             index += 1
-            
-                chart = Chart()
-                chart.error_chart(local_path, self.path + 'chart_error_' + str(t) + '.png')
-                chart.time_chart(local_path,  self.path + 'chart_time_' + str(t) + '.png')
 
+                chart = Chart()
+                chart.error_chart(local_path, self.path +
+                                  'chart_error_' + str(t) + '_' + str(n) + '.png')
+                chart.time_chart(local_path,  self.path +
+                                 'chart_time_' + str(t) + '_' + str(n) + '.png')
 
     # TEST CASE 1: setup cost = shipping cost
-    # worth case: ratio(shipping cost/setup cost) = 1/95
+    # worth case: ratio(shipping cost/setup cost) = 950/1000 ~ 1
+
     def test_one(self):
 
         ub_setup_cost = self.max
         lb_setup_cost = ub_setup_cost * .95
 
-        lb_customer = ub_setup_cost
-        ub_customer = ub_setup_cost * .95
-
+        ub_customer = ub_setup_cost
+        lb_customer = ub_setup_cost * .95
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
@@ -103,15 +104,15 @@ class Test:
         return setup_interval, customers_interval
 
     # TEST CASE 2: setup cost >> shipping cost
-    # worth case: ratio(shipping cost/setup cost) = 1/10
-    # best case: ratio(shipping cost/setup cost) = 1/9.5
+    # worth case: ratio(shipping cost/setup cost) = 100/950 ~ 1/10
+    # best case: ratio(shipping cost/setup cost) = 1/1000
     def test_two(self):
 
         ub_setup_cost = self.max
         lb_setup_cost = ub_setup_cost * .95
 
-        lb_customer = ub_setup_cost * .10
-        ub_customer = 1
+        ub_customer = ub_setup_cost * .10
+        lb_customer = 1
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
@@ -119,8 +120,8 @@ class Test:
         return setup_interval, customers_interval
 
     # TEST CASE 3: setup cost << shipping cost
-    # worth case: ratio(shipping cost/setup cost) = 10
-    # best case: ratio(shipping cost/setup cost) = 9.5
+    # worth case: ratio(shipping cost/setup cost) = 95 ~ 100
+    # best case: ratio(shipping cost/setup cost) = 1000
     def test_three(self):
 
         ub_customer = self.max
@@ -135,6 +136,8 @@ class Test:
         return setup_interval, customers_interval
 
     # TEST CASE 4: high variance in setup cost/low variance in shipping cost
+    # max variance in setup cost = 125'000
+    # max variance in shipping cost = 5'000
     def test_four(self):
 
         ub_setup_cost = self.max
@@ -146,15 +149,11 @@ class Test:
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
 
-        #sample1 = (10, 5)
-        #print(variance(sample1))
-
-        #sample1 = (1, 2)
-        #print(variance(sample1))
-        
         return setup_interval, customers_interval
 
     # TEST CASE 5: low variance in setup cost/high variance in shipping cost
+    # max variance in setup cost = 5'000
+    # max variance in shipping cost = 125'000
     def test_five(self):
 
         ub_setup_cost = self.max
@@ -165,12 +164,6 @@ class Test:
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
-
-        #sample1 = (10, 9)
-        #print(variance(sample1))
-
-        #sample1 = (5, 10)
-        #print(variance(sample1))
 
         setup_interval = (lb_setup_cost, ub_setup_cost)
         customers_interval = (lb_customer, ub_customer)
