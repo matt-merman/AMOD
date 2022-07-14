@@ -1,5 +1,5 @@
 from algorithm.dualoc import *
-from guroby.guroby import *
+from gurobi.gurobi import *
 import timeit
 from performance.helpers import *
 
@@ -18,7 +18,10 @@ class Algorithm:
                          "LP_lagrangian": self.lagrangian_test,
                          "Simplex": self.simplex_test
                          }
-
+        
+        #params for lagrangian relaxation
+        self.k = 100
+    
     def dualoc_test(self):
         d = Dualoc(self.customers, self.facilities, self.shipping_cost)
         v = d.get_z_min()
@@ -26,23 +29,23 @@ class Algorithm:
         return d.get_z_max(w, v, self.setup_cost)
 
     def simplex_test(self):
-        g = Guroby(self.customers, self.facilities, self.setup_cost,
+        g = Gurobi(self.customers, self.facilities, self.setup_cost,
                    self.cartesian_prod, self.shipping_cost)
-        return g.simplex("High", "False")
+        return g.simplex(False)
 
     def relaxation_test(self):
-        g = Guroby(self.customers, self.facilities, self.setup_cost,
+        g = Gurobi(self.customers, self.facilities, self.setup_cost,
                    self.cartesian_prod, self.shipping_cost)
-        return g.simplex("High", "True")
+        return g.simplex(True)
 
     def lagrangian_test(self):
         d = create_multiplier(self.customers, self.facilities)
-        g = Guroby(self.customers, self.facilities, self.setup_cost,
+        g = Gurobi(self.customers, self.facilities, self.setup_cost,
                    self.cartesian_prod, self.shipping_cost)
 
         # calculate feasible solution
-        B = g.simplex("Low", "False")
-        return g.lp_lagrangian(d, 10, None, B, [])
+        b = g.simplex(False)
+        return g.lp_lagrangian(d, self.k, None, b, [])
 
     def calculate_metric(self):
 

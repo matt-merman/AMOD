@@ -13,10 +13,6 @@ class Dualoc:
         self.customers = customers
         self.facilities = facilities
 
-    def display_list(self, list):
-        for i in range(len(list)):
-            print(f" {list[i]}")
-
     # calculate: z_v = min{c_vu}
     def get_z_min(self):
         z_min_list = [0] * self.customers
@@ -34,9 +30,6 @@ class Dualoc:
                 current_cost = new_cost
 
             z_min_list[current_customer] = current_cost
-
-        #print(f"z_v = min(c_vu) =")
-        # self.display_list(z_min_list)
 
         return z_min_list
 
@@ -80,7 +73,6 @@ class Dualoc:
                 z = cost + setup_cost - summ
 
                 z_max_list[facility] = z
-                #print(f"{c} + {f} - {summ} = {z}")
 
             v[customer] = min(z_max_list)
             w = self.get_w(v)

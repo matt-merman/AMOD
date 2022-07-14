@@ -3,7 +3,6 @@ from rich.console import Console
 from performance.helpers import *
 from generate.generator import *
 from performance.csv import *
-from statistics import variance
 from performance.chart import *
 
 
@@ -15,77 +14,73 @@ class Test:
                       3: self.test_four,
                       4: self.test_five
                       }
-        self.trial = 10
+        self.trial = 100
         self.algorithm = ['Dualoc', 'LP_relaxation', 'LP_lagrangian']
         self.path = './performance/result/'
         self.max = 1000
 
         #(facilities, customers)
-        self.nodes = [(30, 30), (5, 30), (30, 5)]
+        self.nodes = [(30, 30), (29, 5), (5, 29)]
 
         console = Console()
         tasks = [f"test {n}" for n in range(
-            1, len(self.tests) * len(self.algorithm) * self.trial * 6 * self.trial * len(self.nodes))]
+            1, len(self.tests) * len(self.algorithm) * self.trial * len(self.nodes) + 1)]
 
-        for n in range(0, len(self.nodes)):
+        for t in range(0, len(self.tests)):
 
-            for t in range(0, len(self.tests)):
+            local_path = self.path + 'result_test_' + str(t) + '.csv'
+            csv = CSV(local_path)
+            csv.create_csv()
 
-                local_path = self.path + 'result_test_' + str(t) + '.csv'
-                csv = CSV(local_path)
-                csv.create_csv()
+            for n in range(0, len(self.nodes)):
 
                 with console.status("[bold green]Working on test..."):
-                    for trial_interval in range(0, self.trial * 7, self.trial):
 
-                        if trial_interval == 0:
-                            continue
+                    time = [0] * len(self.algorithm)
+                    value = [0] * len(self.algorithm)
 
-                        time = [0] * len(self.algorithm)
-                        value = [0] * len(self.algorithm)
+                    index = 0
+                    for algo in self.algorithm:
 
-                        index = 0
-                        for algo in self.algorithm:
+                        new_value = 0
+                        new_time = 0
 
-                            new_value = 0
-                            new_time = 0
+                        for _ in range(self.trial):
 
-                            for _ in range(trial_interval):
+                            setup_interval, customers_interval = self.tests[t](
+                            )
 
-                                setup_interval, customers_interval = self.tests[t](
-                                )
+                            generator = Generator()
+                            setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(
+                                self.nodes[n][1], self.nodes[n][0], setup_interval, customers_interval)
 
-                                generator = Generator()
-                                setup_cost, cartesian_prod, shipping_cost = generator.generate_instance(
-                                    self.nodes[n][1], self.nodes[n][0], setup_interval, customers_interval)
+                            task = tasks.pop(0)
+                            console.log(f"[STARTING]    {task} on {algo}")
 
-                                task = tasks.pop(0)
-                                console.log(f"[STARTING]    {task} on {algo}")
+                            test = Algorithm(self.nodes[n][1], self.nodes[n][0], algo,
+                                             setup_cost, cartesian_prod, shipping_cost)
+                            z = test.simplex_test()
 
-                                test = Algorithm(self.nodes[n][1], self.nodes[n][0], algo,
-                                                 setup_cost, cartesian_prod, shipping_cost)
-                                z = test.simplex_test()
+                            new_value, new_time = test.calculate_metric()
+                            time[index] += new_time
+                            value[index] += new_value
 
-                                new_value, new_time = test.calculate_metric()
-                                time[index] += new_time
-                                value[index] += new_value
+                            console.log(f"[COMPLETED]   {task} on {algo}")
 
-                                console.log(f"[COMPLETED]   {task} on {algo}")
+                        mean_value = (value[index]/self.trial)
+                        error = percent_error(mean_value, z)
+                        mean_time = (time[index]/self.trial)*1000
 
-                            mean_value = (value[index]/trial_interval)
-                            error = percent_error(mean_value, z)
-                            mean_time = (time[index]/trial_interval)*1000
+                        csv.add_row(self.trial, self.nodes[n][0],
+                                    self.nodes[n][1], algo, error, mean_time)
 
-                            csv.add_row(trial_interval, self.nodes[n][1],
-                                        self.nodes[n][0], algo, error, mean_time)
-
-                            index += 1
-
-                chart = Chart()
-                chart.error_chart(local_path, self.path +
-                                  'chart_error_' + str(t) + '_' + str(n) + '.png')
-                chart.time_chart(local_path,  self.path +
-                                 'chart_time_' + str(t) + '_' + str(n) + '.png')
+                        index += 1
+            
+            chart = Chart()
+            chart.error_chart(local_path, self.path +
+                              'chart_error_' + str(t) + '.png')
+            chart.time_chart(local_path,  self.path +
+                             'chart_time_' + str(t) + '.png')
 
     # TEST CASE 1: setup cost = shipping cost
     # worth case: ratio(shipping cost/setup cost) = 950/1000 ~ 1

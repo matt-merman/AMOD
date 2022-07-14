@@ -8,10 +8,15 @@ class Generator:
 
     def get_coordinates(self, elements, lower_bound, upper_bound):
         elements_list = []
-        for _ in range(elements):
+        for e in range(elements):
             x = random.uniform(lower_bound, upper_bound)
             y = random.uniform(lower_bound, upper_bound)
             element = (x, y)
+
+            if element in elements_list:
+                e-=1
+                continue
+
             elements_list.append(element)
         return elements_list
 

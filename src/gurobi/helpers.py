@@ -28,7 +28,7 @@ def filterDigit(len, model):
 
         s = str(model.getVars()[i])
         mo = pattern_one.search(s)
-        if mo == None:
+        if mo is None:
             mo = pattern_two.search(s)
 
         digitList.append(int(mo.group()[1]))

@@ -1,7 +1,7 @@
 # Subgradient algorithm provides a better multiplier to Lagrangian Relaxation problem
 # based on note: https://www3.diism.unisi.it/~agnetis/rillag.pdf
 
-from guroby.helpers import *
+from gurobi.helpers import *
 import numpy as np
 from math import sqrt
 

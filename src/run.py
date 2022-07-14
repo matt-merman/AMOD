@@ -1,8 +1,8 @@
-from guroby.guroby import *
+from gurobi.gurobi import *
 from algorithm.dualoc import *
 from performance.helpers import *
 import os, sys, pyfiglet
-from guroby.helpers import *
+from gurobi.helpers import *
 from generate.generator import * 
 
 def dualoc(c, f, setup_cost, _, shipping_cost):
@@ -15,24 +15,25 @@ def dualoc(c, f, setup_cost, _, shipping_cost):
 
 def simplex(customer, facility, setup_cost, cartesian_prod, shipping_cost):
     print("\nSimplex solution: ")
-    g = Guroby(customer, facility, setup_cost, cartesian_prod, shipping_cost)
-    return g.simplex("High", "False")
+    g = Gurobi(customer, facility, setup_cost, cartesian_prod, shipping_cost)
+    return g.simplex(False)
 
 
 def relaxation(customer, facility, setup_cost, cartesian_prod, shipping_cost):
     print("\nLinear Relaxation solution: ")
-    g = Guroby(customer, facility, setup_cost, cartesian_prod, shipping_cost)
-    return g.simplex("High", "True")
+    g = Gurobi(customer, facility, setup_cost, cartesian_prod, shipping_cost)
+    return g.simplex(True)
 
 
 def lagrangian(customer, facility, setup_cost, cartesian_prod, shipping_cost):
     print("\nLagrangian Relaxation solution: ")
     d = create_multiplier(customer, facility)
-    g = Guroby(customer, facility, setup_cost, cartesian_prod, shipping_cost)
+    g = Gurobi(customer, facility, setup_cost, cartesian_prod, shipping_cost)
 
     # calculate feasible solution
-    B = g.simplex("Low", "False")
-    return g.lp_lagrangian(d, 10, None, B, [])
+    b = g.simplex(False)
+    k = 100
+    return g.lp_lagrangian(d, k, None, b, [])
 
 
 def get_input(customer, facility):
@@ -83,7 +84,7 @@ def run():
     os.system("clear")
     intro = pyfiglet.figlet_format("Dualoc", font="slant")
     print(intro)
-    print("(Info: https://github.com/matt-merman/dualoc)")
+    print("(Info: https://github.com/matt-merman/amod)")
 
     get_input(customer, facility)
 

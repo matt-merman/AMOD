@@ -5,19 +5,23 @@ import numpy as np
 def create_list(path, attribute):
 
     df = pd.read_csv(path)
-    facility = df['#trial'].tolist()
+    facility = df['#facility'].tolist()
     facility = list(set(facility))
     facility.sort()
+
+    customer = df['#customer'].tolist()
+    customer = list(set(customer))
+
     value = [[] for _ in range(0, len(facility))]
 
     index = 0
     for t in facility:
         for _, row in df.iterrows():
-            if row['#trial'] == t:
+            if row['#facility'] == t:
                 value[index].append(row[attribute])
         index += 1
 
-    return value, facility
+    return value, facility, customer
 
 
 def create_multiplier(f, c):
@@ -25,7 +29,7 @@ def create_multiplier(f, c):
     for i in range(f):
         for j in range(c):
             key = (j, i)
-            value = np.random.randint(1, 5)
+            value = np.random.randint(1, 100)
             dic[key] = value
     return dic
 
