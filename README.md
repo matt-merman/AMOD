@@ -26,12 +26,14 @@ python3 run_test.py
 
 # Performance
 
-Some charts that show results. Others available [here](https://github.com/matt-merman/AMOD/tree/main/src/performance/result)
+Some charts:
 
-![Error Result](./src/performance/result/result_error.png)
+![Error Result](./src/performance/result/chart_error_0.png)
 
-![Time Result](./src/performance/result/result_time.png)
+![Time Result](./src/performance/result/chart_time_0.png)
+
+Others available [here](https://github.com/matt-merman/AMOD/tree/main/src/performance/result)
 
 # Implementation
 
-Please see ...
+Please see [presentation](https://github.com/matt-merman/AMOD/tree/main/docs/presentation.pdf) for more details.

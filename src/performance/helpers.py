@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def create_list(path, attribute):
+def create_list(path, attribute, algorithm_list):
 
     df = pd.read_csv(path)
     facility = df['#facility'].tolist()
@@ -17,7 +17,7 @@ def create_list(path, attribute):
     index = 0
     for t in facility:
         for _, row in df.iterrows():
-            if row['#facility'] == t:
+            if row['#facility'] == t and row['algorithm'] in algorithm_list:
                 value[index].append(row[attribute])
         index += 1
 

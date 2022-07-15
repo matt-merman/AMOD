@@ -77,10 +77,18 @@ class Test:
                         index += 1
             
             chart = Chart()
+            
             chart.error_chart(local_path, self.path +
-                              'chart_error_' + str(t) + '.png')
+                              'chart_error_' + str(t) + '.png', ["Dualoc", "LP_relaxation"], 0.25)
             chart.time_chart(local_path,  self.path +
-                             'chart_time_' + str(t) + '.png')
+                             'chart_time_' + str(t) + '.png', ["Dualoc", "LP_relaxation"], 0.25)
+            
+            chart.error_chart(local_path, self.path +
+                              'chart_error_lagrangian_' + str(t) + '.png', ["LP_lagrangian"], 0.15)
+            chart.time_chart(local_path,  self.path +
+                             'chart_time_lagrangian_' + str(t) + '.png', ["LP_lagrangian"], 0.15)
+                             
+
 
     # TEST CASE 1: setup cost = shipping cost
     # worth case: ratio(shipping cost/setup cost) = 950/1000 ~ 1

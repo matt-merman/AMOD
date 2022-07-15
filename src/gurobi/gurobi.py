@@ -23,19 +23,15 @@ class Gurobi:
         env = gp.Env(empty=True)
         env.setParam("OutputFlag", 0)
         env.start()
-
         self.model = gp.Model('facility_location', env=env)
 
         # to set primal simplex algorithm
         # (https://www.gurobi.com/documentation/9.5/refman/method.html)
-
         self.model.Params.Method = 0
-
         self.select = self.model.addVars(facilities,
                                          vtype=gp.GRB.BINARY, name='Select')
         self.assign = self.model.addVars(self.cartesian_prod,
                                          vtype=gp.GRB.BINARY, name='Assign')
-
         self.model.addConstrs((gp.quicksum(self.assign[(customer, facility)] for facility in range(
             facilities)) == 1 for customer in range(customers)), name='Demand')
 
