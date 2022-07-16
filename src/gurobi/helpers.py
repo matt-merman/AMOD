@@ -1,6 +1,8 @@
 import re
 from itertools import groupby
 
+__all__ = ['check_lastest_result', 'conv2dict', 'filterDigit']
+
 def check_lastest_result(result, k):
     if len(result) < k:
         return False

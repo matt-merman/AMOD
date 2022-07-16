@@ -5,6 +5,7 @@ from gurobi.helpers import *
 import numpy as np
 from math import sqrt
 
+__all__ = ['Subgradient']
 
 class Subgradient:
     def __init__(self, cartesian_prod, facilities, customers):

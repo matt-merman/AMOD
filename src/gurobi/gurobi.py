@@ -10,6 +10,7 @@ from gurobi.helpers import *
 from gurobi.subgradient import *
 import gurobipy as gp
 
+__all__ = ['Gurobi']
 
 class Gurobi:
     def __init__(self, customers, facilities, setup_cost, cartesian_prod, shipping_cost):
@@ -35,7 +36,7 @@ class Gurobi:
         self.model.addConstrs((gp.quicksum(self.assign[(customer, facility)] for facility in range(
             facilities)) == 1 for customer in range(customers)), name='Demand')
 
-        # to disactivate presolve options and others
+        # to disable presolve options and others
         # (https://support.gurobi.com/hc/en-us/community/posts/360048467412-Separating-specific-cuts)
         self.model.setParam(gp.GRB.Param.Presolve, 0)
         self.model.setParam(gp.GRB.Param.Heuristics, 0)

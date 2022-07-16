@@ -1,5 +1,5 @@
 from gurobi.gurobi import *
-from algorithm.dualoc import *
+from dualoc.dualoc import *
 from performance.helpers import *
 import os, sys, pyfiglet
 from gurobi.helpers import *
@@ -82,7 +82,7 @@ def run():
     facility = int(sys.argv[2])
 
     os.system("clear")
-    intro = pyfiglet.figlet_format("Dualoc", font="slant")
+    intro = pyfiglet.figlet_format("Amod", font="slant")
     print(intro)
     print("(Info: https://github.com/matt-merman/amod)")
 

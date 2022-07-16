@@ -5,6 +5,8 @@ from generate.generator import *
 from performance.csv import *
 from performance.chart import *
 
+__all__ = ['Test']
+
 
 class Test:
     def __init__(self):
@@ -75,20 +77,18 @@ class Test:
                                     self.nodes[n][1], algo, error, mean_time)
 
                         index += 1
-            
-            chart = Chart()
-            
-            chart.error_chart(local_path, self.path +
-                              'chart_error_' + str(t) + '.png', ["Dualoc", "LP_relaxation"], 0.25)
-            chart.time_chart(local_path,  self.path +
-                             'chart_time_' + str(t) + '.png', ["Dualoc", "LP_relaxation"], 0.25)
-            
-            chart.error_chart(local_path, self.path +
-                              'chart_error_lagrangian_' + str(t) + '.png', ["LP_lagrangian"], 0.15)
-            chart.time_chart(local_path,  self.path +
-                             'chart_time_lagrangian_' + str(t) + '.png', ["LP_lagrangian"], 0.15)
-                             
 
+            chart = Chart()
+
+            chart.error_chart(local_path, self.path +
+                              'chart_error_' + str(t) + '.png', ["Dualoc", "LP_relaxation", "LP_lagrangian"], 0.25)
+            chart.time_chart(local_path,  self.path +
+                             'chart_time_' + str(t) + '.png', ["Dualoc", "LP_relaxation", "LP_lagrangian"], 0.25)
+
+            chart.error_chart(local_path, self.path +
+                              'chart_error_lagrangian_' + str(t) + '.png', ["LP_lagrangian"], 0.12)
+            chart.time_chart(local_path,  self.path +
+                             'chart_time_lagrangian_' + str(t) + '.png', ["LP_lagrangian"], 0.12)
 
     # TEST CASE 1: setup cost = shipping cost
     # worth case: ratio(shipping cost/setup cost) = 950/1000 ~ 1

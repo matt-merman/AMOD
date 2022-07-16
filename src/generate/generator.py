@@ -1,6 +1,7 @@
 import random
 from itertools import product
 
+__all__ = ['Generator']
 
 class Generator:
     def __init__(self):

@@ -1,8 +1,9 @@
-from algorithm.dualoc import *
+from dualoc.dualoc import *
 from gurobi.gurobi import *
 import timeit
 from performance.helpers import *
 
+__all__ = ['Algorithm']
 
 class Algorithm:
     def __init__(self, customers, facilities, algorithm, setup_cost, cartesian_prod, shipping_cost):

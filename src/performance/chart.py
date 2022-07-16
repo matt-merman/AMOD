@@ -1,7 +1,8 @@
-from cmath import nan
 import numpy as np
 import matplotlib.pyplot as plt
 from performance.helpers import *
+
+__all__ = ['Chart']
 
 
 class Chart:
